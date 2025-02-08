@@ -13,7 +13,7 @@ The response to a `/osc/widget,i` message is either a `/vcs/widget,is` or `/vcs/
 Add the following to your `Cargo.toml`:
 ```toml
 [dependencies]
-decode_kyma_vcs_event = "0.1.12"
+decode_kyma_vcs_event = "0.1.14"
 ```
 
 ## License

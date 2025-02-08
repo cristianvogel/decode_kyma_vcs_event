@@ -15,21 +15,24 @@ that changed value
 ... repeat EventID and value pairs for each widget that changed value.
  */
 
-
 pub fn from_blob(buf: &[u8]) -> Result<Vec<(i32, f32)>, String> {
-    // Initial checks
+    //𝌺  Initial under sized container check
     if buf.len() < 12 {
         return Err("Buffer is too small to contain required fields".to_string());
     }
-
-    // Read and validate the address pattern
-    let addr_end = buf.iter().position(|&b| b == 0).ok_or("Address pattern not null-terminated")?;
-    let address = std::str::from_utf8(&buf[..addr_end]).map_err(|_| "Invalid UTF-8 in address pattern")?;
+    //𝌺  Read and validate the address pattern
+    let addr_end = buf
+        .iter()
+        .position(|&b| b == 0)
+        .ok_or("Address pattern not null-terminated")?;
+    let address =
+        std::str::from_utf8(&buf[..addr_end]).map_err(|_| "Invalid UTF-8 in address pattern")?;
     if address != "/vcs" {
-        return Err(format!("Unexpected address pattern: {} (expected '/vcs')", address));
+        return Err(format!("Unexpected address pattern: {}", address));
     }
 
-    let addr_padded_len = (addr_end + 4) & !3;    // Address pattern must be padded to 4 bytes
+    // Address pattern must be padded to 4 bytes
+    let addr_padded_len = (addr_end + 4) & !3;
 
     // Read and validate the type tag
     let type_tag_start = addr_padded_len;
@@ -37,30 +40,28 @@ pub fn from_blob(buf: &[u8]) -> Result<Vec<(i32, f32)>, String> {
         return Err("Invalid type tag, expected `,b`".to_string());
     }
 
-    // Type tag must be padded to 4 bytes
-    let type_tag_padded_len = type_tag_start + 4;
+    let type_tag_padded_len = type_tag_start + 4; // Type tag must be padded to 4 bytes
 
-    // Read the blob length (next 4 bytes, big-endian)
+    //𝌺  Read the blob length (next 4 bytes, big-endian)
     let blob_length_offset = type_tag_padded_len;
-    let blob_length_bytes = buf.get(blob_length_offset..blob_length_offset + 4).ok_or("Buffer too short for blob length")?;
+    let blob_length_bytes = buf
+        .get(blob_length_offset..blob_length_offset + 4)
+        .ok_or("Buffer too short for blob length")?;
     let blob_length = u32::from_be_bytes(blob_length_bytes.try_into().unwrap()) as usize;
 
-    // Read the blob data
+    //𝌺  Read the blob data
     let blob_start = blob_length_offset + 4;
     let blob_end = blob_start + blob_length;
-    let blob_data = buf.get(blob_start..blob_end).ok_or("Buffer too short for blob data")?;
+    let blob_data = buf
+        .get(blob_start..blob_end)
+        .ok_or("Buffer too short for blob data")?;
 
-    // Decode the blob data (8 bytes per EventID/value pair)
+    //𝌺  Decode the blob data (8 bytes per EventID/value pair)
     if blob_length % 8 != 0 {
         return Err("Blob length is not a multiple of 8".to_string());
     }
 
-    let mut results = Vec::with_capacity(blob_length / 8);
-    // Return empty Vec if there were no events
-    if blob_length == 0 {
-        return Ok(results)
-    }
-    // Builder for EventId, Value results
+    let mut results = Vec::new();
     for chunk in blob_data.chunks_exact(8) {
         let event_id = i32::from_be_bytes(chunk[0..4].try_into().unwrap());
         let value = f32::from_be_bytes(chunk[4..8].try_into().unwrap());
