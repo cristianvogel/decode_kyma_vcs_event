@@ -16,7 +16,7 @@ that changed value
  */
 
 
-fn from_blob(buf: &[u8]) -> Result<Vec<(i32, f32)>, String> {
+pub fn from_blob(buf: &[u8]) -> Result<Vec<(i32, f32)>, String> {
     // Initial checks
     if buf.len() < 12 {
         return Err("Buffer is too small to contain required fields".to_string());
