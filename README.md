@@ -18,15 +18,5 @@ Add the following to your `Cargo.toml`:
 decode_kyma_vcs_event_blob = "0.1.0"
 ```
 
-Then, import this crate in your project:
-```rust
-use decode_kyma_vcs_event_blob::decode_kyma_vcs_event_blob;
-
-let buf = b"/vcs\x00\x00\x00\x00,b\x00\x00\x00\x00\x00\x00\x00\x00";
-let result = decode_kyma_vcs_event_blob(buf).unwrap();
-println!("{:?}", result);
-```
-
 ## License
 This project is licensed under the MIT OR Apache-2.0 license.
-See [LICENSE](./LICENSE) for more details.

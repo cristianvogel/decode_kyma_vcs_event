@@ -16,7 +16,7 @@ that changed value
  */
 
 
-fn decode_kyma_vcs_event_blob(buf: &[u8]) -> Result<Vec<(i32, f32)>, String> {
+fn from_blob(buf: &[u8]) -> Result<Vec<(i32, f32)>, String> {
     // Initial checks
     if buf.len() < 12 {
         return Err("Buffer is too small to contain required fields".to_string());
@@ -73,7 +73,7 @@ fn decode_kyma_vcs_event_blob(buf: &[u8]) -> Result<Vec<(i32, f32)>, String> {
 fn main() {
     let buf: &[u8] = b"/vcs\0\0\0\0,b\0\0\0\0\0\0\0\0"; // Minimal valid data
     
-    match decode_kyma_vcs_event_blob(buf) {
+    match from_blob(buf) {
         Ok(result) => println!("Decoded successfully: {:?}", result),
         Err(err) => eprintln!("Error decoding packet: {}", err),
     }
@@ -82,5 +82,5 @@ fn main() {
 #[test]
 fn test_vcs_decoder() {
     let buf = b"/vcs\0\0\0\0,b\0\0\0\0\0\0\0\0"; // Empty blob
-    assert_eq!(decode_kyma_vcs_event_blob(buf), Ok(vec![]));
+    assert_eq!(from_blob(buf), Ok(vec![]));
 }
