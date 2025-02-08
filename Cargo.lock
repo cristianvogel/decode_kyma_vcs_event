@@ -4,4 +4,4 @@ version = 4
 
 [[package]]
 name = "decode_kyma_vcs_event"
-version = "0.1.1"
+version = "0.1.11"
