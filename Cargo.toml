@@ -11,3 +11,5 @@ categories = ["encoding", "parsing"]
 repository = "https://github.com/cristianvogel/decode_kyma_vcs_event"
 
 [dependencies]
+# Declare serde as an optional dependency
+serde = { version = "1.0", optional = false, features = ["derive"] }
