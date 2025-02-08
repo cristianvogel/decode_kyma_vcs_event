@@ -14,8 +14,12 @@ int_id0, float_value0 is the 32-bit integer EventID and the 32-bit float value o
 that changed value
 ... repeat EventID and value pairs for each widget that changed value.
  */
+pub struct KymaConcreteEvent {
+    pub event_id: i32,
+    pub value: f32,
+}
 
-pub fn from_blob(buf: &[u8]) -> Result<Vec<(i32, f32)>, String> {
+pub fn from_blob(buf: &[u8]) -> Result<Vec<KymaConcreteEvent>, String> {
     //𝌺  Initial under sized container check
     if buf.len() < 12 {
         return Err("Buffer is too small to contain required fields".to_string());
@@ -65,7 +69,7 @@ pub fn from_blob(buf: &[u8]) -> Result<Vec<(i32, f32)>, String> {
     for chunk in blob_data.chunks_exact(8) {
         let event_id = i32::from_be_bytes(chunk[0..4].try_into().unwrap());
         let value = f32::from_be_bytes(chunk[4..8].try_into().unwrap());
-        results.push((event_id, value));
+        results.push(KymaConcreteEvent { event_id, value });
     }
 
     Ok(results)
