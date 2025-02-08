@@ -15,6 +15,7 @@ that changed value
 ... repeat EventID and value pairs for each widget that changed value.
  */
 
+
 fn decode_kyma_vcs_event_blob(buf: &[u8]) -> Result<Vec<(i32, f32)>, String> {
     // Initial checks
     if buf.len() < 12 {
