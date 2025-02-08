@@ -1,7 +1,7 @@
 [package]
 name = "decode_kyma_vcs_event"
 include = ["src/**", "Cargo.toml", "README.md"]
-version = "0.1.16"
+version = "0.1.17"
 edition = "2021"
 authors = ["Cristián Vogel"]
 description = "A Rust crate to decode optimised Kyma '/vcs,b' messages into EventID-value pairs."
