@@ -1,4 +1,3 @@
-# decode_kyma_vcs_event_blob
 
 `decode_kyma_vcs_event_blob` is a Rust crate for decoding [Kyma](https://kyma.symbolicsound.com/) *optimised* VCS event blobs, transmitted using [the Kyma OSC protocol](http://www.symbolicsound.com/cgi-bin/bin/view/Learn/OpenSoundControlImplementation).
 
