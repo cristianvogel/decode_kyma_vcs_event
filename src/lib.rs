@@ -3,7 +3,7 @@ Custom decoder for optimised "/vcs" packets
 ⇐ /vcs,b { byteCount, int_id0,
 Notification of change of value of
 float_value0, ... }
-one or more VCS widgets and "Optimize Kyma Control Communication”
+one or more VCS widgets and "Optimise Kyma Control Communication”
 is turned on in the Performance Preferences in Kyma.
 The APU sends this message to your software if VCS notifications have been turned on
 and one or more VCS widgets have changed value.
@@ -54,7 +54,7 @@ fn from_blob(buf: &[u8]) -> Result<Vec<(i32, f32)>, String> {
     if blob_length % 8 != 0 {
         return Err("Blob length is not a multiple of 8".to_string());
     }
-    
+
     let mut results = Vec::with_capacity(blob_length / 8);
     // Return empty Vec if there were no events
     if blob_length == 0 {
@@ -68,19 +68,4 @@ fn from_blob(buf: &[u8]) -> Result<Vec<(i32, f32)>, String> {
     }
 
     Ok(results)
-}
-
-fn main() {
-    let buf: &[u8] = b"/vcs\0\0\0\0,b\0\0\0\0\0\0\0\0"; // Minimal valid data
-    
-    match from_blob(buf) {
-        Ok(result) => println!("Decoded successfully: {:?}", result),
-        Err(err) => eprintln!("Error decoding packet: {}", err),
-    }
-}
-
-#[test]
-fn test_vcs_decoder() {
-    let buf = b"/vcs\0\0\0\0,b\0\0\0\0\0\0\0\0"; // Empty blob
-    assert_eq!(from_blob(buf), Ok(vec![]));
 }

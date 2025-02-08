@@ -1,4 +1,4 @@
-`decode_kyma_vcs_event_blob` is a Rust crate for decoding [Kyma](https://kyma.symbolicsound.com/) *optimised* VCS event blobs, transmitted using [the Kyma OSC protocol](http://www.symbolicsound.com/cgi-bin/bin/view/Learn/OpenSoundControlImplementation).
+A Rust crate for decoding [Kyma](https://kyma.symbolicsound.com/) *optimised* VCS event blobs, transmitted using [the Kyma OSC protocol](http://www.symbolicsound.com/cgi-bin/bin/view/Learn/OpenSoundControlImplementation).
 
 `/vcs,b` is sent when a value changes on the VCS (for example, when a fader is moved).
 
@@ -13,7 +13,7 @@ The response to a `/osc/widget,i` message is either a `/vcs/widget,is` or `/vcs/
 Add the following to your `Cargo.toml`:
 ```toml
 [dependencies]
-decode_kyma_vcs_event_blob = "0.1.0"
+decode_kyma_vcs_event_blob = "0.1.1"
 ```
 
 ## License

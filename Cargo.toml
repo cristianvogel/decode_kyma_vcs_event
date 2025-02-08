@@ -1,12 +1,12 @@
 [package]
 name = "decode_kyma_vcs_event"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2024"
 authors = ["Cristián Vogel"]
 description = "A Rust crate to decode optimised Kyma '/vcs,b' messages into EventID-value pairs."
 license = "MIT OR Apache-2.0"
 keywords = ["kyma", "decoding", "osc"]
 categories = ["encoding", "parsing"]
-repository = "https://github.com/cristianvogel/kyma_vcs_event_decoder"
+repository = "https://github.com/cristianvogel/decode_kyma_vcs_event"
 
 [dependencies]
