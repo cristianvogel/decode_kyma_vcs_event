@@ -14,10 +14,27 @@ int_id0, float_value0 is the 32-bit integer EventID and the 32-bit float value o
 that changed value
 ... repeat EventID and value pairs for each widget that changed value.
  */
+use std::fmt;
+
+#[derive (Clone, Copy, Debug, PartialEq)]
 pub struct KymaConcreteEvent {
     pub event_id: i32,
     pub value: f32,
 }
+impl fmt::Display for KymaConcreteEvent {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "KymaConcreteEvent {{ event_id: {}, value: {} }}", self.event_id, self.value)
+    }
+}
+impl Default for KymaConcreteEvent {
+    fn default() -> Self {
+        Self {
+            event_id: 0,
+            value: 0.0,
+        }
+    }
+}
+
 
 pub fn from_blob(buf: &[u8]) -> Result<Vec<KymaConcreteEvent>, String> {
     //𝌺  Initial under sized container check
