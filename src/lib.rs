@@ -15,18 +15,22 @@ that changed value
 ... repeat EventID and value pairs for each widget that changed value.
  */
 
-use std::fmt;
 use flate2::read::GzDecoder;
+use std::fmt;
 use std::io::Read;
 
-#[derive (Clone, Copy, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct KymaConcreteEvent {
     pub event_id: i32,
     pub value: f32,
 }
 impl fmt::Display for KymaConcreteEvent {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "KymaConcreteEvent {{ event_id: {}, value: {} }}", self.event_id, self.value)
+        write!(
+            f,
+            "KymaConcreteEvent {{ event_id: {}, value: {} }}",
+            self.event_id, self.value
+        )
     }
 }
 impl Default for KymaConcreteEvent {
@@ -42,12 +46,16 @@ fn is_gzip(data: &[u8]) -> bool {
     data.len() > 2 && data[0] == 0x1F && data[1] == 0x8B
 }
 
-pub fn from_blob(buf: &[u8]) -> Result<Vec<KymaConcreteEvent>, String> {
-    //𝌺  Initial under sized container check
+pub fn from_blob(raw: &[u8]) -> Result<Vec<KymaConcreteEvent>, String> {
+    // Don't decompress the entire packet - work with raw OSC data first
+    let buf = raw;
+
+    // Initial under sized container check
     if buf.len() < 12 {
         return Err("Buffer is too small to contain required fields".to_string());
     }
-    //𝌺  Read and validate the address pattern
+
+    // Read and validate the address pattern
     let addr_end = buf
         .iter()
         .position(|&b| b == 0)
@@ -69,33 +77,42 @@ pub fn from_blob(buf: &[u8]) -> Result<Vec<KymaConcreteEvent>, String> {
 
     let type_tag_padded_len = type_tag_start + 4; // Type tag must be padded to 4 bytes
 
-    //𝌺  Read the blob length (next 4 bytes, big-endian)
+    // Read the blob length (next 4 bytes, big-endian)
     let blob_length_offset = type_tag_padded_len;
     let blob_length_bytes = buf
         .get(blob_length_offset..blob_length_offset + 4)
         .ok_or("Buffer too short for blob length")?;
     let blob_length = u32::from_be_bytes(blob_length_bytes.try_into().unwrap()) as usize;
 
-    //𝌺  Read the blob data
+    // Read the blob data
     let blob_start = blob_length_offset + 4;
     let blob_end = blob_start + blob_length;
     let blob_data = buf
         .get(blob_start..blob_end)
         .ok_or("Buffer too short for blob data")?;
 
-    // NEW: Decompress if gzip
-    let decompressed_blob: Vec<u8>;
-    let data = if is_gzip(blob_data) {
+    // NOW handle Kyma-specific compression on the blob data
+    let data = if !blob_data.is_empty() && blob_data[0] == b'?' {
+        // Kyma-specific compression with '?' prefix
+        let gzip_data = &blob_data[1..]; // Strip the '?' prefix
+        let mut decoder = GzDecoder::new(gzip_data);
+        let mut decompressed = Vec::new();
+        decoder.read_to_end(&mut decompressed)
+               .map_err(|e| format!("Kyma gzip decompression failed: {}", e))?;
+        decompressed
+    } else if is_gzip(blob_data) {
+        // Raw gzip data (no '?' prefix) - validate it's actually valid gzip
         let mut decoder = GzDecoder::new(blob_data);
-        let mut out = Vec::new();
-        decoder.read_to_end(&mut out).map_err(|e| format!("Gzip decompression failed: {}", e))?;
-        decompressed_blob = out;
-        &decompressed_blob
+        let mut decompressed = Vec::new();
+        decoder.read_to_end(&mut decompressed)
+               .map_err(|e| format!("Invalid gzip data: {}", e))?;
+        decompressed
     } else {
-        blob_data
+        // Uncompressed data
+        blob_data.to_vec()
     };
 
-    //𝌺  Decode the blob data (8 bytes per EventID/value pair)
+    // Decode the blob data (8 bytes per EventID/value pair)
     if data.len() % 8 != 0 {
         return Err("Blob length is not a multiple of 8".to_string());
     }
@@ -110,12 +127,13 @@ pub fn from_blob(buf: &[u8]) -> Result<Vec<KymaConcreteEvent>, String> {
     Ok(results)
 }
 
+
 #[cfg(test)]
 mod tests {
-    use std::io::Write;
     use super::*;
     use flate2::write::GzEncoder;
     use flate2::Compression;
+    use std::io::Write;
 
     // Helper to build a /vcs,b OSC packet with given blob content (raw)
     fn build_osc_packet(blob: &[u8]) -> Vec<u8> {
@@ -168,14 +186,19 @@ mod tests {
         blob.extend((-1.23f32).to_be_bytes());
 
         // Gzip compress the blob
+        // Gzip compress the blob
         let mut encoder = GzEncoder::new(Vec::new(), Compression::default());
         encoder.write_all(&blob).unwrap();
-        let gzipped_blob = encoder.finish().unwrap();
+        let compressed = encoder.finish().unwrap();
+        // add the Kyma specific '?' isGzip flag
+        let mut final_blob = vec![b'?'];
+        final_blob.extend_from_slice(&*compressed);
 
-        let packet = build_osc_packet(&gzipped_blob);
+
+        let packet = build_osc_packet(&final_blob);
         let events = from_blob(&packet).unwrap();
         println!("=== blob, gzip decompressed ===");
-        dbg!( &events);
+        dbg!(&events);
         assert_eq!(events.len(), 1);
         assert_eq!(events[0].event_id, 123);
         assert!((events[0].value + 1.23).abs() < 1e-6);

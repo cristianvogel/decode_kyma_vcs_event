@@ -1,10 +1,10 @@
 [package]
 name = "decode_kyma_vcs_event"
 include = ["src/**", "Cargo.toml", "README.md"]
-version = "0.1.18"
+version = "0.1.19"
 edition = "2021"
 authors = ["Cristián Vogel"]
-description = "A Rust crate to decode optimised Kyma '/vcs,b' messages into EventID-value pairs."
+description = "A Rust crate to decode optimised Symbolic Sound Kyma '/vcs,b' OSC messages into EventID-value pairs."
 license = "MIT OR Apache-2.0"
 keywords = ["kyma", "decoding", "osc"]
 categories = ["encoding", "parsing"]
