@@ -1,0 +1,1 @@
+/Users/cristianvogel/Programming/decode_kyma_vcs_event/target/package/decode_kyma_vcs_event-0.1.15/target/debug/libdecode_kyma_vcs_event.rlib: /Users/cristianvogel/Programming/decode_kyma_vcs_event/target/package/decode_kyma_vcs_event-0.1.15/src/lib.rs

@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="ALL" />
+  </component>
+  <component name="CargoProjects">
+    <cargoProject FILE="$PROJECT_DIR$/Cargo.toml">
+      <package file="$PROJECT_DIR$">
+        <enabledFeature name="default" />
+      </package>
+    </cargoProject>
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="441a217a-57b4-4e91-a202-15f2beac6210" name="Changes" comment="BUG FIX: Forgot about the Kyma specific '?' gzip flag" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ExecutionTargetManager" SELECTED_TARGET="RsBuildProfile:test" />
+  <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="master" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;cristianvogel&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/cristianvogel/decode_kyma_vcs_event.git",
+    "accountId": "64b2216e-4558-4f95-b75b-4083ea936e8e"
+  },
+  "recentNewPullRequestHead": {
+    "server": {
+      "useHttp": false,
+      "host": "github.com",
+      "port": null,
+      "suffix": null
+    },
+    "owner": "cristianvogel",
+    "repository": "decode_kyma_vcs_event"
+  }
+}]]></component>
+  <component name="MacroExpansionManager">
+    <option name="directoryName" value="dK7RvR8C" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 2
+}</component>
+  <component name="ProjectId" id="2sl0QiyrAr8fioo5Lp4PW8GgT1J" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "Cargo.Test lib::tests.executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.rust.reset.selective.auto.import": "true",
+    "git-widget-placeholder": "v0__1__18/decode__gzip",
+    "junie.onboarding.icon.badge.shown": "true",
+    "last_opened_file_path": "/Users/cristianvogel/Programming/decode_kyma_vcs_event",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "org.rust.cargo.project.model.PROJECT_DISCOVERY": "true",
+    "org.rust.cargo.project.model.impl.CargoExternalSystemProjectAware.subscribe.first.balloon": "",
+    "org.rust.first.attach.projects": "true",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="RunManager">
+    <configuration name="Test lib::tests" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+      <option name="buildProfileId" value="test" />
+      <option name="command" value="test --package decode_kyma_vcs_event --lib tests" />
+      <option name="workingDirectory" value="file://$PROJECT_DIR$" />
+      <envs />
+      <option name="emulateTerminal" value="true" />
+      <option name="channel" value="DEFAULT" />
+      <option name="requiredFeatures" value="true" />
+      <option name="allFeatures" value="false" />
+      <option name="withSudo" value="false" />
+      <option name="buildTarget" value="REMOTE" />
+      <option name="backtrace" value="SHORT" />
+      <option name="isRedirectInput" value="false" />
+      <option name="redirectInputPath" value="" />
+      <method v="2">
+        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
+      </method>
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Cargo.Test lib::tests" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="RustProjectSettings">
+    <option name="toolchainHomeDirectory" value="$USER_HOME$/.cargo/bin" />
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="441a217a-57b4-4e91-a202-15f2beac6210" name="Changes" comment="" />
+      <created>1739014839321</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1739014839321</updated>
+      <workItem from="1739014840654" duration="237000" />
+      <workItem from="1739017432421" duration="989000" />
+      <workItem from="1739019065237" duration="3000" />
+      <workItem from="1739031104377" duration="1968000" />
+      <workItem from="1754299603199" duration="2301000" />
+    </task>
+    <task id="LOCAL-00001" summary="Corrected edition field">
+      <option name="closed" value="true" />
+      <created>1739014892053</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1739014892053</updated>
+    </task>
+    <task id="LOCAL-00002" summary="bumped version">
+      <option name="closed" value="true" />
+      <created>1739017687971</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1739017687971</updated>
+    </task>
+    <task id="LOCAL-00003" summary="bumped version">
+      <option name="closed" value="true" />
+      <created>1739031506560</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1739031506560</updated>
+    </task>
+    <task id="LOCAL-00004" summary="added traits to KymaConcreteEvent">
+      <option name="closed" value="true" />
+      <created>1739033028689</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1739033028689</updated>
+    </task>
+    <task id="LOCAL-00005" summary="Add serde support for KymaConcreteEvent struct">
+      <option name="closed" value="true" />
+      <created>1739033393670</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1739033393670</updated>
+    </task>
+    <task id="LOCAL-00006" summary="Add serde support for KymaConcreteEvent struct">
+      <option name="closed" value="true" />
+      <created>1739033416181</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1739033416181</updated>
+    </task>
+    <task id="LOCAL-00007" summary="BUG FIX: Forgot about the Kyma specific '?' gzip flag">
+      <option name="closed" value="true" />
+      <created>1754302872950</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1754302872950</updated>
+    </task>
+    <task id="LOCAL-00008" summary="BUG FIX: Forgot about the Kyma specific '?' gzip flag">
+      <option name="closed" value="true" />
+      <created>1754302936642</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1754302936642</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Corrected edition field" />
+    <MESSAGE value="bumped version" />
+    <MESSAGE value="added traits to KymaConcreteEvent" />
+    <MESSAGE value="Add serde support for KymaConcreteEvent struct" />
+    <MESSAGE value="BUG FIX: Forgot about the Kyma specific '?' gzip flag" />
+    <option name="LAST_COMMIT_MESSAGE" value="BUG FIX: Forgot about the Kyma specific '?' gzip flag" />
+  </component>
+</project>
