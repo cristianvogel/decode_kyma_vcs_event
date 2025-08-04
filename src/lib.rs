@@ -14,7 +14,10 @@ int_id0, float_value0 is the 32-bit integer EventID and the 32-bit float value o
 that changed value
 ... repeat EventID and value pairs for each widget that changed value.
  */
+
 use std::fmt;
+use flate2::read::GzDecoder;
+use std::io::Read;
 
 #[derive (Clone, Copy, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct KymaConcreteEvent {
@@ -35,6 +38,9 @@ impl Default for KymaConcreteEvent {
     }
 }
 
+fn is_gzip(data: &[u8]) -> bool {
+    data.len() > 2 && data[0] == 0x1F && data[1] == 0x8B
+}
 
 pub fn from_blob(buf: &[u8]) -> Result<Vec<KymaConcreteEvent>, String> {
     //𝌺  Initial under sized container check
@@ -77,17 +83,119 @@ pub fn from_blob(buf: &[u8]) -> Result<Vec<KymaConcreteEvent>, String> {
         .get(blob_start..blob_end)
         .ok_or("Buffer too short for blob data")?;
 
+    // NEW: Decompress if gzip
+    let decompressed_blob: Vec<u8>;
+    let data = if is_gzip(blob_data) {
+        let mut decoder = GzDecoder::new(blob_data);
+        let mut out = Vec::new();
+        decoder.read_to_end(&mut out).map_err(|e| format!("Gzip decompression failed: {}", e))?;
+        decompressed_blob = out;
+        &decompressed_blob
+    } else {
+        blob_data
+    };
+
     //𝌺  Decode the blob data (8 bytes per EventID/value pair)
-    if blob_length % 8 != 0 {
+    if data.len() % 8 != 0 {
         return Err("Blob length is not a multiple of 8".to_string());
     }
 
     let mut results = Vec::new();
-    for chunk in blob_data.chunks_exact(8) {
+    for chunk in data.chunks_exact(8) {
         let event_id = i32::from_be_bytes(chunk[0..4].try_into().unwrap());
         let value = f32::from_be_bytes(chunk[4..8].try_into().unwrap());
         results.push(KymaConcreteEvent { event_id, value });
     }
 
     Ok(results)
+}
+
+#[cfg(test)]
+mod tests {
+    use std::io::Write;
+    use super::*;
+    use flate2::write::GzEncoder;
+    use flate2::Compression;
+
+    // Helper to build a /vcs,b OSC packet with given blob content (raw)
+    fn build_osc_packet(blob: &[u8]) -> Vec<u8> {
+        let mut buf = Vec::new();
+        // Address pattern "/vcs" + null terminator
+        buf.extend(b"/vcs");
+        buf.push(0);
+
+        // Pad to 4 bytes
+        while buf.len() % 4 != 0 {
+            buf.push(0);
+        }
+
+        // Type tag ",b" + null terminator and pad to 4 bytes
+        buf.extend(b",b");
+        buf.push(0);
+        while buf.len() % 4 != 0 {
+            buf.push(0);
+        }
+
+        // Blob length (big-endian u32)
+        let len = blob.len() as u32;
+        buf.extend(len.to_be_bytes());
+        // Blob data
+        buf.extend(blob);
+        buf
+    }
+
+    #[test]
+    fn test_from_blob_with_uncompressed_data() {
+        // Event: event_id = 42, value = 3.14
+        let mut blob = Vec::new();
+        blob.extend(42i32.to_be_bytes());
+        blob.extend(3.14f32.to_be_bytes());
+
+        let packet = build_osc_packet(&blob);
+        let events = from_blob(&packet).unwrap();
+        println!("=== blob, no gzip ===");
+        dbg!(&events);
+        assert_eq!(events.len(), 1);
+        assert_eq!(events[0].event_id, 42);
+        assert!((events[0].value - 3.14).abs() < 1e-6);
+    }
+
+    #[test]
+    fn test_from_blob_with_gzipped_data() {
+        // Event: event_id = 123, value = -1.23
+        let mut blob = Vec::new();
+        blob.extend(123i32.to_be_bytes());
+        blob.extend((-1.23f32).to_be_bytes());
+
+        // Gzip compress the blob
+        let mut encoder = GzEncoder::new(Vec::new(), Compression::default());
+        encoder.write_all(&blob).unwrap();
+        let gzipped_blob = encoder.finish().unwrap();
+
+        let packet = build_osc_packet(&gzipped_blob);
+        let events = from_blob(&packet).unwrap();
+        println!("=== blob, gzip decompressed ===");
+        dbg!( &events);
+        assert_eq!(events.len(), 1);
+        assert_eq!(events[0].event_id, 123);
+        assert!((events[0].value + 1.23).abs() < 1e-6);
+    }
+
+    #[test]
+    fn test_from_blob_with_invalid_data() {
+        // Blob with wrong size (not divisible by 8)
+        let blob = vec![0, 1, 2, 3, 4, 5, 6];
+        let packet = build_osc_packet(&blob);
+        let res = from_blob(&packet);
+        assert!(res.is_err());
+    }
+
+    #[test]
+    fn test_from_blob_with_invalid_gzip() {
+        // Blob starts with gzip magic but is not valid gzip
+        let blob = vec![0x1F, 0x8B, 0, 1, 2, 3, 4, 5, 6, 7];
+        let packet = build_osc_packet(&blob);
+        let res = from_blob(&packet);
+        assert!(res.is_err());
+    }
 }
