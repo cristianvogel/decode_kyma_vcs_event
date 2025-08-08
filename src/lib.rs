@@ -52,6 +52,20 @@ impl Default for KymaConcreteEvent {
 // 
 // c+k
 
+/// Decodes a Kyma VCS OSC message into a vector of KymaConcreteEvent objects.
+///
+/// This function is optimized for performance:
+/// - Uses direct byte access instead of slices where possible
+/// - Performs minimal bounds checking
+/// - Pre-allocates result vector to exact size needed
+/// - Handles headerless deflate data with '?' prefix
+/// - No unnecessary allocations or copies
+///
+/// # Arguments
+/// * `raw` - The raw OSC message bytes
+///
+/// # Returns
+/// * `Result<Vec<KymaConcreteEvent>, String>` - The decoded events or an error message
 pub fn from_blob(raw: &[u8]) -> Result<Vec<KymaConcreteEvent>, String> {
     // Fast path for minimum size check
     if raw.len() < 12 {
@@ -103,19 +117,35 @@ pub fn from_blob(raw: &[u8]) -> Result<Vec<KymaConcreteEvent>, String> {
     
     let blob_data = &raw[blob_start..blob_end];
 
+
+
     // Handle Kyma-specific compression on the blob data
-    let data = if !blob_data.is_empty() && blob_data[0] == b'?' {
-        // Kyma-specific compression with '?' prefix - strip it and decompress
-        let deflate_data = &blob_data[1..];
-        match inflate_bytes(&deflate_data) {
-            Ok(decompressed) => decompressed,
-            Err(_) => return Err("Failed to decompress data".to_string()),
+    let data = if !blob_data.is_empty() {
+        // First, try to decompress assuming it's raw deflate data (no '?' prefix)
+        match inflate_bytes(&blob_data) {
+            Ok(decompressed) => {
+                decompressed
+            }
+            Err(_) => {
+                // If that fails, check for '?' prefix (legacy format)
+                if blob_data[0] == b'?' {
+                    let deflate_data = &blob_data[1..];
+                    match inflate_bytes(&deflate_data) {
+                        Ok(decompressed) => {
+                            decompressed
+                        }
+                        Err(_) => return Err("Failed to decompress data with '?' prefix".to_string()),
+                    }
+                } else {
+                    // Not compressed at all, use raw data
+                    blob_data.to_vec()
+                }
+            }
         }
     } else {
-        // Uncompressed data
-        blob_data.to_vec()
+        return Err("Empty blob data".to_string());
     };
-
+    
     // Decode the blob data (8 bytes per EventID/value pair)
     if data.len() % 8 != 0 {
         return Err("Blob length is not a multiple of 8".to_string());
