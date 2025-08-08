@@ -63,7 +63,7 @@ pub fn from_blob(raw: &[u8]) -> Result<Vec<KymaConcreteEvent>, String> {
     let address =
         std::str::from_utf8(&buf[..addr_end]).map_err(|_| "Invalid UTF-8 in address pattern")?;
     if address != "/vcs" {
-        return Err(format!("Unexpected address pattern: {}", address));
+        return Err(format!("Unexpected address pattern: {address}"));
     }
 
     // Address pattern must be padded to 4 bytes
@@ -101,14 +101,14 @@ pub fn from_blob(raw: &[u8]) -> Result<Vec<KymaConcreteEvent>, String> {
         let mut decoder = DeflateDecoder::new(deflate_data);
         let mut decompressed = Vec::new();
         decoder.read_to_end(&mut decompressed)
-               .map_err(|e| format!("Kyma headerless gzip decompression failed: {}", e))?;
+               .map_err(|e| format!("Kyma headerless gzip decompression failed: {e}"))?;
         decompressed
     } else if is_gzip(blob_data) {
         // Raw gzip data (no '?' prefix) - validate it's actually valid gzip
         let mut decoder = GzDecoder::new(blob_data);
         let mut decompressed = Vec::new();
         decoder.read_to_end(&mut decompressed)
-               .map_err(|e| format!("Invalid gzip data: {}", e))?;
+               .map_err(|e| format!("Invalid gzip data: {e}"))?;
         decompressed
     } else {
         // Uncompressed data
