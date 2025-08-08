@@ -124,6 +124,7 @@ pub fn from_blob(raw: &[u8]) -> Result<Vec<KymaConcreteEvent>, String> {
         // First, try to decompress assuming it's raw deflate data (no '?' prefix)
         match inflate_bytes(&blob_data) {
             Ok(decompressed) => {
+                print!("Successfully decompressed raw deflate data");
                 decompressed
             }
             Err(_) => {
@@ -132,12 +133,14 @@ pub fn from_blob(raw: &[u8]) -> Result<Vec<KymaConcreteEvent>, String> {
                     let deflate_data = &blob_data[1..];
                     match inflate_bytes(&deflate_data) {
                         Ok(decompressed) => {
+                            print!("Successfully decompressed '?' prefixed data");
                             decompressed
                         }
                         Err(_) => return Err("Failed to decompress data with '?' prefix".to_string()),
                     }
                 } else {
                     // Not compressed at all, use raw data
+                    print!("Using uncompressed data");
                     blob_data.to_vec()
                 }
             }
@@ -146,6 +149,7 @@ pub fn from_blob(raw: &[u8]) -> Result<Vec<KymaConcreteEvent>, String> {
         return Err("Empty blob data".to_string());
     };
     
+
     // Decode the blob data (8 bytes per EventID/value pair)
     if data.len() % 8 != 0 {
         return Err("Blob length is not a multiple of 8".to_string());
