@@ -15,7 +15,7 @@ that changed value
 ... repeat EventID and value pairs for each widget that changed value.
  */
 
-use flate2::read::GzDecoder;
+use flate2::read::{GzDecoder, DeflateDecoder};
 use std::fmt;
 use std::io::Read;
 
@@ -94,11 +94,14 @@ pub fn from_blob(raw: &[u8]) -> Result<Vec<KymaConcreteEvent>, String> {
     // NOW handle Kyma-specific compression on the blob data
     let data = if !blob_data.is_empty() && blob_data[0] == b'?' {
         // Kyma-specific compression with '?' prefix
-        let gzip_data = &blob_data[1..]; // Strip the '?' prefix
-        let mut decoder = GzDecoder::new(gzip_data);
+        // Kyma strips the gzip header when transmitting compressed data
+        // The data is raw deflate stream without headers
+        let deflate_data = &blob_data[1..]; // Strip the '?' prefix
+        // Use DeflateDecoder for headerless gzip data
+        let mut decoder = DeflateDecoder::new(deflate_data);
         let mut decompressed = Vec::new();
         decoder.read_to_end(&mut decompressed)
-               .map_err(|e| format!("Kyma gzip decompression failed: {}", e))?;
+               .map_err(|e| format!("Kyma headerless gzip decompression failed: {}", e))?;
         decompressed
     } else if is_gzip(blob_data) {
         // Raw gzip data (no '?' prefix) - validate it's actually valid gzip
@@ -131,7 +134,7 @@ pub fn from_blob(raw: &[u8]) -> Result<Vec<KymaConcreteEvent>, String> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use flate2::write::GzEncoder;
+    use flate2::write::DeflateEncoder;
     use flate2::Compression;
     use std::io::Write;
 
@@ -185,9 +188,8 @@ mod tests {
         blob.extend(123i32.to_be_bytes());
         blob.extend((-1.23f32).to_be_bytes());
 
-        // Gzip compress the blob
-        // Gzip compress the blob
-        let mut encoder = GzEncoder::new(Vec::new(), Compression::default());
+        // Use DeflateEncoder for headerless gzip data
+        let mut encoder = DeflateEncoder::new(Vec::new(), Compression::default());
         encoder.write_all(&blob).unwrap();
         let compressed = encoder.finish().unwrap();
         // add the Kyma specific '?' isGzip flag
