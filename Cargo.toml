@@ -1,7 +1,7 @@
 [package]
 name = "decode_kyma_vcs_event"
 include = ["src/**", "Cargo.toml", "README.md"]
-version = "0.1.22"
+version = "0.1.23"
 edition = "2021"
 authors = ["Cristián Vogel"]
 description = "A Rust crate to decode optimised Symbolic Sound Kyma '/vcs,b' OSC messages into EventID-value pairs."
@@ -13,4 +13,3 @@ repository = "https://github.com/cristianvogel/decode_kyma_vcs_event"
 [dependencies]
 # Declare serde as an optional dependency
 serde = { version = "1.0", optional = false, features = ["derive"] }
-inflate = "0.4.5"

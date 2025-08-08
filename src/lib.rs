@@ -15,7 +15,6 @@ that changed value
 ... repeat EventID and value pairs for each widget that changed value.
  */
 
-use inflate::inflate_bytes;
 use std::fmt;
 
 #[derive(Clone, Copy, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
@@ -58,7 +57,7 @@ impl Default for KymaConcreteEvent {
 /// - Uses direct byte access instead of slices where possible
 /// - Performs minimal bounds checking
 /// - Pre-allocates result vector to exact size needed
-/// - Handles headerless deflate data with '?' prefix
+/// - Handles data with '?' prefix (legacy format)
 /// - No unnecessary allocations or copies
 ///
 /// # Arguments
@@ -119,32 +118,13 @@ pub fn from_blob(raw: &[u8]) -> Result<Vec<KymaConcreteEvent>, String> {
 
 
 
-    // Handle Kyma-specific compression on the blob data
+    // Process the blob data directly (no compression handling)
     let data = if !blob_data.is_empty() {
-        // First, try to decompress assuming it's raw deflate data (no '?' prefix)
-        match inflate_bytes(&blob_data) {
-            Ok(decompressed) => {
-                print!("Successfully decompressed raw deflate data");
-                decompressed
-            }
-            Err(e) => {
-                eprintln!("DEFLATE error {:?}", e);
-                // If that fails, check for '?' prefix (legacy format)
-                if blob_data[0] == b'?' {
-                    let deflate_data = &blob_data[1..];
-                    match inflate_bytes(&deflate_data) {
-                        Ok(decompressed) => {
-                            print!("Successfully decompressed '?' prefixed data");
-                            decompressed
-                        }
-                        Err(_) => return Err("Failed to decompress data with '?' prefix".to_string()),
-                    }
-                } else {
-                    // Not compressed at all, use raw data
-                    print!("Using uncompressed data");
-                    blob_data.to_vec()
-                }
-            }
+        // Check for '?' prefix (legacy format) and remove it if present
+        if blob_data[0] == b'?' {
+            blob_data[1..].to_vec()
+        } else {
+            blob_data.to_vec()
         }
     } else {
         return Err("Empty blob data".to_string());
@@ -204,8 +184,8 @@ mod tests {
     }
     
     #[test]
-    fn test_compressed_data() {
-        // Create a simple OSC message with /vcs address and compressed blob data
+    fn test_data_with_prefix() {
+        // Create a simple OSC message with /vcs address and blob data with '?' prefix
         let mut message = Vec::new();
         
         // Address: "/vcs\0"
@@ -214,19 +194,10 @@ mod tests {
         // Type tag: ",b\0\0"
         message.extend_from_slice(b",b\0\0");
         
-        // Create the raw event data
-        let mut event_data = Vec::new();
-        event_data.extend_from_slice(&[0, 0, 0, 123]); // event_id = 123
-        event_data.extend_from_slice(&[0xbf, 0x9d, 0x70, 0xa4]); // value = -1.23
-        
-        // Compress the event data using inflate's test helper
-        // Since we can't easily compress with inflate, we'll use a pre-compressed value
-        // This is a simplified test - in real code we'd need to properly compress
-        let compressed_data = vec![0x73, 0x74, 0x75, 0x62]; // Stub compressed data
-        
-        // Add the '?' prefix for Kyma compressed data
+        // Create the raw event data with '?' prefix
         let mut blob_data = vec![b'?'];
-        blob_data.extend_from_slice(&compressed_data);
+        blob_data.extend_from_slice(&[0, 0, 0, 123]); // event_id = 123
+        blob_data.extend_from_slice(&[0xbf, 0x9d, 0x70, 0xa4]); // value = -1.23
         
         // Add blob length
         message.extend_from_slice(&(blob_data.len() as u32).to_be_bytes());
@@ -234,8 +205,12 @@ mod tests {
         // Add blob data
         message.extend_from_slice(&blob_data);
         
-        // This test will fail because we're using stub compressed data
-        // In a real test, we would need proper compressed data
-        // assert!(from_blob(&message).is_ok());
+        // Parse the message
+        let result = from_blob(&message).unwrap();
+        
+        // Verify the result
+        assert_eq!(result.len(), 1);
+        assert_eq!(result[0].event_id, 123);
+        assert!((result[0].value - (-1.23)).abs() < 0.001);
     }
 }
